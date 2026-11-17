@@ -211,9 +211,16 @@ function validate(){
  return errs;
 }
 function svgBars(items,colors){
- const max=Math.max(...items.map(x=>x.value),1), w=540,h=220,left=92,right=20,top=15,bottom=30,plot=w-left-right;
+ const max=Math.max(...items.map(x=>x.value),1), w=620,h=220,left=92,right=18,top=15,plot=w-left-right;
  let s=`<svg class="chart" viewBox="0 0 ${w} ${h}" role="img" aria-label="Bar chart">`;
- items.forEach((it,i)=>{let y=top+i*58,bar=plot*it.value/max;s+=`<text x="${left-10}" y="${y+20}" text-anchor="end" font-size="12" fill="#687789">${it.label}</text><rect x="${left}" y="${y}" width="${Math.max(bar,1)}" height="28" rx="6" fill="${colors[i%colors.length]}"/><text x="${Math.min(left+bar+8,w-5)}" y="${y+19}" font-size="12" fill="#172435">${it.display}</text>`});
+ items.forEach((it,i)=>{
+   let y=top+i*58,bar=plot*it.value/max,labelWidth=Math.max(48,it.display.length*7.2);
+   let inside=bar>=labelWidth+18;
+   let labelX=inside?left+bar-9:Math.min(left+bar+8,w-labelWidth-4);
+   let anchor=inside?"end":"start";
+   let labelFill=inside?"#ffffff":"#172435";
+   s+=`<text x="${left-10}" y="${y+20}" text-anchor="end" font-size="12" fill="#687789">${it.label}</text><rect x="${left}" y="${y}" width="${Math.max(bar,1)}" height="28" rx="6" fill="${colors[i%colors.length]}"/><text x="${labelX}" y="${y+19}" text-anchor="${anchor}" font-size="12" font-weight="600" fill="${labelFill}">${it.display}</text>`;
+ });
  s+="</svg>";return s;
 }
 function renderDashboard(){
