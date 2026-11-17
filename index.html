@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#17365d">
+<meta name="description" content="Private, local-first NPS retirement planner with projections and sensitivity analysis.">
+<title>NPS Retirement Planner</title>
+<style>
+:root{--navy:#17365d;--blue:#245b87;--teal:#087e8b;--green:#16834b;--bg:#f4f7fb;--card:#fff;--ink:#172435;--muted:#687789;--line:#dce5ee;--gold:#d69a38;--red:#b54747;--shadow:0 5px 20px rgba(24,49,78,.07)}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
+header{background:linear-gradient(125deg,#17365d,#245b87);color:#fff;padding:22px max(18px,calc((100vw - 1180px)/2));padding-bottom:25px}
+header .top{display:flex;align-items:center;justify-content:space-between;gap:12px}h1{font-size:25px;line-height:1.15;margin:0 0 6px}header p{margin:0;color:#d9e7f4;font-size:13px}.privacy{font-size:11px;border:1px solid #7e9bb8;border-radius:99px;padding:6px 10px;white-space:nowrap}
+main{max-width:1180px;margin:0 auto;padding:18px 16px 40px}.tabs{display:flex;gap:7px;overflow:auto;padding:4px 0 13px;position:sticky;top:0;background:var(--bg);z-index:5}
+.tab{border:1px solid var(--line);background:#fff;color:var(--muted);padding:9px 13px;border-radius:99px;font-weight:650;white-space:nowrap;cursor:pointer}.tab.active{background:var(--navy);border-color:var(--navy);color:#fff}
+.panel{display:none}.panel.active{display:block}.grid{display:grid;gap:14px}.kpis{grid-template-columns:repeat(4,minmax(0,1fr));margin:8px 0 16px}.two{grid-template-columns:repeat(2,minmax(0,1fr))}.three{grid-template-columns:repeat(3,minmax(0,1fr))}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:var(--shadow);min-width:0}.kpi-label{font-size:12px;color:var(--muted);font-weight:600}.kpi-value{font-size:clamp(21px,3vw,29px);font-weight:800;letter-spacing:-.6px;margin:5px 0 2px;color:var(--navy)}.sub{font-size:12px;color:var(--muted)}
+h2{font-size:17px;margin:0 0 13px;color:var(--navy)}h3{font-size:14px;margin:0 0 10px;color:var(--navy)}
+.toolbar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin:8px 0 13px}
+button,.button{border:0;border-radius:10px;padding:10px 14px;background:var(--navy);color:white;font-weight:700;cursor:pointer;font-size:13px}.secondary{background:#eaf1f7;color:var(--navy);border:1px solid #d4e1ed}.danger{background:#fff0f0;color:var(--red);border:1px solid #f0cccc}
+label{display:block;font-size:12px;color:var(--muted);font-weight:650;margin-bottom:5px}input,select{width:100%;border:1px solid #cbd7e3;border-radius:9px;padding:10px 11px;background:#fff;color:var(--ink);font:inherit;font-size:14px;min-width:0}input:focus,select:focus{outline:2px solid #9fc3e2;border-color:var(--blue)}
+.field{margin-bottom:13px}.field small{display:block;color:var(--muted);font-size:11px;margin-top:4px}.formgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 13px}
+.section-title{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:19px 0 10px}.section-title h2{margin:0}.pill{font-size:11px;background:#e8f3ee;color:#17683f;padding:5px 9px;border-radius:99px;font-weight:700}
+table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:10px 8px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}th:first-child,td:first-child{text-align:left}th{font-size:11px;color:var(--muted);font-weight:700;background:#f8fafc}td strong{color:var(--navy)}
+.tablewrap{overflow:auto}.chart{width:100%;height:auto;display:block;min-height:220px}.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:11px;color:var(--muted);margin-top:7px}.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px}
+.note{padding:12px 14px;border-radius:11px;background:#fff8e9;border:1px solid #f0dfb8;color:#72551c;font-size:12px}.goodnote{background:#edf7f1;border-color:#d2eadb;color:#245f3c}
+.allocbar{height:12px;display:flex;border-radius:99px;overflow:hidden;background:#eee;margin:10px 0}.allocbar span:nth-child(1){background:#25865e}.allocbar span:nth-child(2){background:#d69a38}.allocbar span:nth-child(3){background:#5489c7}
+.alloclegend{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+.scenario-row{display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}.scenario-row:last-child{border:0}
+.sensitivity td{font-variant-numeric:tabular-nums}.sensitivity .selected{background:#eaf4fb;font-weight:800;color:var(--navy);outline:1px solid #a8c8e2}
+footer{color:var(--muted);font-size:11px;text-align:center;padding:20px 10px}
+@media(max-width:760px){main{padding:13px 12px 32px}.kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.two,.three{grid-template-columns:1fr}.card{padding:14px}.kpi-value{font-size:23px}.formgrid{grid-template-columns:1fr 1fr}header{padding:18px 15px 21px}h1{font-size:22px}.privacy{font-size:10px}}
+@media(max-width:390px){.formgrid{grid-template-columns:1fr}.scenario-row{grid-template-columns:1fr auto}.scenario-row .third{grid-column:1/-1;text-align:left}}
+</style>
+</head>
+<body>
+<header><div class="top"><div><h1> NPS Retirement Planner</h1><p>Build scenarios. Understand your retirement corpus.</p></div><span class="privacy">🔒 Private · Saved on this device</span></div></header>
+<main>
+<nav class="tabs" aria-label="Planner sections">
+<button class="tab active" data-tab="dashboard">Dashboard</button><button class="tab" data-tab="inputs">Inputs</button><button class="tab" data-tab="sensitivity">Sensitivity</button><button class="tab" data-tab="scenarios">Compare plans</button><button class="tab" data-tab="method">Methodology</button>
+</nav>
+
+<section id="dashboard" class="panel active">
+<div class="toolbar"><div><strong id="dashTitle">Your retirement outlook</strong><div class="sub" id="dashSubtitle">Based on current assumptions</div></div><button class="secondary" id="resetBtn">Reset to my defaults</button></div>
+<div class="grid kpis">
+<div class="card"><div class="kpi-label">Base-case corpus</div><div class="kpi-value" id="kpiCorpus">—</div><div class="sub" id="kpiReturn">13% assumed return</div></div>
+<div class="card"><div class="kpi-label">Today's purchasing power</div><div class="kpi-value" id="kpiReal">—</div><div class="sub" id="kpiInflation">After inflation</div></div>
+<div class="card"><div class="kpi-label">Future contributions</div><div class="kpi-value" id="kpiInvested">—</div><div class="sub">Excludes current corpus</div></div>
+<div class="card"><div class="kpi-label">Final monthly contribution</div><div class="kpi-value" id="kpiLast">—</div><div class="sub" id="kpiDate">At the end of projection</div></div>
+</div>
+<div class="grid two">
+<div class="card"><h2>Retirement corpus by return scenario</h2><div id="returnChart"></div><div class="legend"><span><i class="dot" style="background:#25865e"></i>Projected corpus</span></div></div>
+<div class="card"><h2>What makes up your corpus?</h2><div id="splitChart"></div><div class="legend"><span><i class="dot" style="background:#245b87"></i>Starting corpus + contributions</span><span><i class="dot" style="background:#d69a38"></i>Investment growth</span></div></div>
+</div>
+<div class="section-title"><h2>Three return scenarios</h2><span class="pill" id="stepPill">10% annual step-up</span></div>
+<div class="card tablewrap"><table><thead><tr><th>Scenario</th><th>Return</th><th>Corpus</th><th>Today's value</th></tr></thead><tbody id="scenarioTable"></tbody></table></div>
+<div class="section-title"><h2>Portfolio allocation</h2></div>
+<div class="card"><div class="allocbar" id="allocBar"></div><div class="alloclegend" id="allocLegend"></div><div class="sub" style="margin-top:10px">The allocation is shown for reference. The projection applies the selected blended portfolio return to the entire corpus.</div></div>
+<div class="note" style="margin-top:14px">Illustrative market-linked projection, not a guaranteed return or pension quote. Actual NPS outcomes depend on investment performance, charges, contributions and rules at exit.</div>
+</section>
+
+<section id="inputs" class="panel">
+<div class="toolbar"><div><strong>Projection assumptions</strong><div class="sub">Edit the yellow fields; results recalculate automatically.</div></div><button id="saveInputs" class="secondary">Save on this device</button></div>
+<div class="grid two">
+<div class="card"><h2>Personal & contribution details</h2><div class="formgrid">
+<div class="field"><label for="dob">Date of birth</label><input id="dob" type="date"></div>
+<div class="field"><label for="retAge">Retirement age</label><input id="retAge" type="number" min="50" max="75" step="1"></div>
+<div class="field"><label for="valuationDate">Valuation date</label><input id="valuationDate" type="date"></div>
+<div class="field"><label for="currentCorpus">Current NPS market value (₹)</label><input id="currentCorpus" type="number" min="0" step="100"></div>
+<div class="field"><label for="monthly">Total monthly contribution (₹)</label><input id="monthly" type="number" min="0" step="100"></div>
+<div class="field"><label for="stepUp">Annual contribution step-up (%)</label><input id="stepUp" type="number" min="0" max="50" step="0.5"></div>
+<div class="field"><label for="firstMonth">First future contribution month</label><input id="firstMonth" type="month"></div>
+<div class="field"><label for="stepMonth">Annual step-up month</label><select id="stepMonth"><option value="1">January</option><option value="4">April</option><option value="7">July</option><option value="10">October</option></select></div>
+</div><div class="note">Current market value is your starting corpus and already includes contributions made so far. Do not add those contributions again.</div></div>
+<div class="card"><h2>Return, inflation & allocation</h2><div class="formgrid">
+<div class="field"><label for="lowReturn">Low return scenario (%)</label><input id="lowReturn" type="number" min="-10" max="30" step="0.5"></div>
+<div class="field"><label for="baseReturn">Base return scenario (%)</label><input id="baseReturn" type="number" min="-10" max="30" step="0.5"></div>
+<div class="field"><label for="highReturn">High return scenario (%)</label><input id="highReturn" type="number" min="-10" max="30" step="0.5"></div>
+<div class="field"><label for="inflation">Inflation assumption (%)</label><input id="inflation" type="number" min="0" max="20" step="0.5"></div>
+<div class="field"><label for="equity">Equity allocation (%)</label><input id="equity" type="number" min="0" max="100" step="1"></div>
+<div class="field"><label for="corpDebt">Corporate debt allocation (%)</label><input id="corpDebt" type="number" min="0" max="100" step="1"></div>
+<div class="field"><label for="gsec">Government securities (%)</label><input id="gsec" type="number" min="0" max="100" step="1"></div>
+</div><div class="sub" id="allocationCheck"></div></div>
+</div>
+<div class="toolbar" style="margin-top:14px"><span class="sub">Changes are stored only in this browser when you save or use the app.</span><button id="applyBtn">Apply assumptions</button></div>
+</section>
+
+<section id="sensitivity" class="panel">
+<div class="toolbar"><div><strong>Sensitivity analysis</strong><div class="sub">Compare annual contribution step-ups against portfolio returns.</div></div><button class="secondary" id="exportCsv">Export sensitivity CSV</button></div>
+<div class="card"><div class="formgrid">
+<div class="field"><label for="stepsList">Step-up rates (%) · comma separated</label><input id="stepsList" value="5,8,10,12,15,18"></div>
+<div class="field"><label for="returnsList">Return rates (%) · comma separated</label><input id="returnsList" value="10,11,12,13,14,15"></div>
+</div><button id="runSensitivity">Run sensitivity analysis</button><div class="sub" style="margin-top:8px">Sensitivity uses the same contribution timing and retirement date as the main projection.</div></div>
+<div class="card tablewrap" style="margin-top:14px"><h2>Projected corpus (₹ crore)</h2><div id="sensitivityTable"></div></div>
+<div class="card" style="margin-top:14px"><h2>Today's purchasing power for selected cells</h2><div id="sensitivityReal" class="sub">Calculated using your inflation assumption.</div></div>
+</section>
+
+<section id="scenarios" class="panel">
+<div class="toolbar"><div><strong>Compare saved plans</strong><div class="sub">Save the current assumptions as a named scenario, then compare plans.</div></div></div>
+<div class="card"><div class="formgrid"><div class="field"><label for="scenarioName">Scenario name</label><input id="scenarioName" placeholder="e.g. Conservative plan"></div><div class="field" style="align-self:end"><button id="saveScenario" style="width:100%">Save current plan</button></div></div><div class="sub">Scenarios are stored locally in this browser. They are not uploaded anywhere.</div></div>
+<div class="card tablewrap" style="margin-top:14px"><h2>Saved scenario comparison</h2><div id="savedScenarios"></div></div>
+</section>
+
+<section id="method" class="panel">
+<div class="grid two">
+<div class="card"><h2>How the calculator works</h2><ul>
+<li>Starting corpus is the current market value as of the valuation date.</li>
+<li>Future monthly contributions begin in the selected first contribution month.</li>
+<li>Contributions are assumed at month-end.</li>
+<li>The monthly contribution increases by the selected step-up each year in the selected month.</li>
+<li>Annual returns are treated as effective annual rates and converted to equivalent monthly rates.</li>
+<li>The projection stops at the month before the retirement month.</li>
+<li>Inflation-adjusted value discounts the retirement corpus back to the valuation date.</li>
+</ul></div>
+<div class="card"><h2>Important limitations</h2><ul>
+<li>Returns are assumptions, not guarantees or forecasts.</li>
+<li>Asset allocation is displayed but no separate asset-class return forecasts are made.</li>
+<li>Charges, taxes, exit rules, annuity rates and future regulatory changes are not modelled.</li>
+<li>Monthly contribution growth may become unrealistic over a 35-year horizon; review affordability and salary growth.</li>
+<li>For retirement decisions, verify current NPS/PFRDA rules and consult a qualified adviser.</li>
+</ul></div>
+</div>
+<div class="card" style="margin-top:14px"><h2>Privacy & data</h2><p>This is a static, local-first web app. Your inputs and saved scenarios stay in your browser's local storage. The app does not send financial information to a server. Clearing browser site data will remove locally saved scenarios. If you use a shared device, avoid saving sensitive details.</p><button class="danger" id="clearData">Clear all locally saved data</button></div>
+</section>
+<footer>NPS Retirement Planner · Local-first calculator · Not financial advice</footer>
+</main>
+<script>
+const DEFAULTS={
+ dob:"1996-07-27",retAge:65,valuationDate:"2026-11-18",currentCorpus:29804,monthly:13953,stepUp:10,
+ firstMonth:"2026-12",stepMonth:4,inflation:6,lowReturn:12,baseReturn:13,highReturn:15,
+ equity:75,corpDebt:10,gsec:15
+};
+const $=id=>document.getElementById(id);
+let state={...DEFAULTS}, sensitivityData=[];
+const inputIds=Object.keys(DEFAULTS);
+function num(v){return Number(v)||0}
+function dateFromMonth(s){let [y,m]=s.split("-").map(Number);return new Date(y,m-1,1)}
+function addMonths(d,n){return new Date(d.getFullYear(),d.getMonth()+n,1)}
+function monthsBetween(a,b){return (b.getFullYear()-a.getFullYear())*12+b.getMonth()-a.getMonth()}
+function retirementDate(){let d=new Date(state.dob+"T12:00:00");return new Date(d.getFullYear()+num(state.retAge),d.getMonth(),d.getDate())}
+function fmtMoney(n,dec=0){if(!isFinite(n))return "—";return "₹"+Math.round(n).toLocaleString("en-IN")}
+function crore(n){return "₹"+(n/1e7).toFixed(2)+" Cr"}
+function fmtPct(n){return Number(n).toFixed(1)+"%"}
+function monthLabel(d){return d.toLocaleDateString("en-IN",{month:"short",year:"numeric"})}
+function getSchedule(stepUp=state.stepUp){
+ const retire=retirementDate(), first=dateFromMonth(state.firstMonth), last=new Date(retire.getFullYear(),retire.getMonth(),1);
+ let rows=[], d=new Date(first), contribution=num(state.monthly), idx=0;
+ while(d<last && rows.length<1000){
+   if(d.getMonth()+1===num(state.stepMonth) && (d.getFullYear()>first.getFullYear() || (d.getFullYear()===first.getFullYear() && d>=first)) && rows.length>0) contribution*=1+stepUp/100;
+   rows.push({date:new Date(d),contribution,index:idx});
+   idx++; d=addMonths(d,1);
+ }
+ return rows;
+}
+function project(rate,step=state.stepUp){
+ const rows=getSchedule(step), annual=rate/100, monthlyRate=Math.pow(1+annual,1/12)-1;
+ let bal=num(state.currentCorpus), invested=0, series=[{date:new Date(state.valuationDate+"T12:00:00"),balance:bal}];
+ for(const r of rows){bal=bal*(1+monthlyRate)+r.contribution;invested+=r.contribution;series.push({date:r.date,balance:bal});}
+ // Month-end deposits; retirement valuation is at retirement date. Grow final month-end balance to retirement date.
+ const last=rows.length?rows[rows.length-1].date:new Date(state.valuationDate);
+ const retire=retirementDate();
+ const monthsToRetire=Math.max(0,monthsBetween(last,retire));
+ bal*=Math.pow(1+monthlyRate,monthsToRetire);
+ series.push({date:retire,balance:bal});
+ const years=(retire-new Date(state.valuationDate+"T12:00:00"))/(365.2425*86400000);
+ const real=bal/Math.pow(1+num(state.inflation)/100,years);
+ return {corpus:bal,invested,starting:num(state.currentCorpus),totalInvested:invested+num(state.currentCorpus),gain:bal-invested-num(state.currentCorpus),real,years,rows,series,lastContribution:rows.length?rows[rows.length-1].contribution:0};
+}
+function setInputs(){
+ inputIds.forEach(k=>{if($(k))$(k).value=state[k]});
+}
+function readInputs(){
+ inputIds.forEach(k=>{let el=$(k);if(el){state[k]=["dob","valuationDate","firstMonth"].includes(k)?el.value:num(el.value)}});
+}
+function validate(){
+ let errs=[];
+ if(!state.dob||!state.valuationDate||!state.firstMonth)errs.push("Please complete all dates.");
+ if(state.retAge<50||state.retAge>75)errs.push("Retirement age must be between 50 and 75.");
+ if(state.monthly<0||state.currentCorpus<0)errs.push("Contribution and corpus cannot be negative.");
+ if(state.lowReturn<=-100||state.baseReturn<=-100||state.highReturn<=-100)errs.push("Return assumptions must be greater than -100%.");
+ if(state.equity+state.corpDebt+state.gsec!==100)errs.push("Asset allocation must total exactly 100%.");
+ if(dateFromMonth(state.firstMonth)>=new Date(retirementDate().getFullYear(),retirementDate().getMonth(),1))errs.push("First contribution month must be before retirement.");
+ return errs;
+}
+function svgBars(items,colors){
+ const max=Math.max(...items.map(x=>x.value),1), w=540,h=220,left=92,right=20,top=15,bottom=30,plot=w-left-right;
+ let s=`<svg class="chart" viewBox="0 0 ${w} ${h}" role="img" aria-label="Bar chart">`;
+ items.forEach((it,i)=>{let y=top+i*58,bar=plot*it.value/max;s+=`<text x="${left-10}" y="${y+20}" text-anchor="end" font-size="12" fill="#687789">${it.label}</text><rect x="${left}" y="${y}" width="${Math.max(bar,1)}" height="28" rx="6" fill="${colors[i%colors.length]}"/><text x="${Math.min(left+bar+8,w-5)}" y="${y+19}" font-size="12" fill="#172435">${it.display}</text>`});
+ s+="</svg>";return s;
+}
+function renderDashboard(){
+ let low=project(state.lowReturn),base=project(state.baseReturn),high=project(state.highReturn),all=[low,base,high];
+ $("kpiCorpus").textContent=crore(base.corpus);$("kpiReturn").textContent=fmtPct(state.baseReturn)+" assumed annual return";
+ $("kpiReal").textContent=crore(base.real);$("kpiInflation").textContent=fmtPct(state.inflation)+" inflation · "+base.years.toFixed(1)+" years";
+ $("kpiInvested").textContent=crore(base.invested);$("kpiLast").textContent=fmtMoney(base.lastContribution);
+ $("kpiDate").textContent="Final contribution · "+(base.rows.length?monthLabel(base.rows[base.rows.length-1].date):"—");
+ $("dashSubtitle").textContent=`Age ${state.retAge} · ${retirementDate().toLocaleDateString("en-IN",{month:"short",year:"numeric"})} · ${state.stepUp}% annual contribution step-up`;
+ $("stepPill").textContent=state.stepUp+"% annual step-up";
+ $("scenarioTable").innerHTML=[["Conservative",state.lowReturn,low],["Base",state.baseReturn,base],["Optimistic",state.highReturn,high]].map(([name,r,p])=>`<tr><td><strong>${name}</strong></td><td>${fmtPct(r)}</td><td>${crore(p.corpus)}</td><td>${crore(p.real)}</td></tr>`).join("");
+ $("returnChart").innerHTML=svgBars([{label:"Low",value:low.corpus,display:crore(low.corpus)},{label:"Base",value:base.corpus,display:crore(base.corpus)},{label:"High",value:high.corpus,display:crore(high.corpus)}],["#5489c7","#25865e","#d69a38"]);
+ $("splitChart").innerHTML=svgBars([{label:"Invested",value:base.totalInvested,display:crore(base.totalInvested)},{label:"Growth",value:Math.max(0,base.gain),display:crore(base.gain)}],["#245b87","#d69a38"]);
+ $("allocBar").innerHTML=`<span style="width:${state.equity}%"></span><span style="width:${state.corpDebt}%"></span><span style="width:${state.gsec}%"></span>`;
+ $("allocLegend").innerHTML=`<span>Equity ${state.equity}%</span><span>Corporate debt ${state.corpDebt}%</span><span>Government securities ${state.gsec}%</span>`;
+ $("allocationCheck").textContent=`Total allocation: ${state.equity+state.corpDebt+state.gsec}%`;
+}
+function parseList(v){return [...new Set(v.split(",").map(x=>Number(x.trim())).filter(x=>isFinite(x)&&x>=0&&x<=50))].sort((a,b)=>a-b)}
+function renderSensitivity(){
+ let steps=parseList($("stepsList").value),rets=parseList($("returnsList").value);
+ if(!steps.length||!rets.length){$("sensitivityTable").textContent="Enter valid comma-separated percentages.";return}
+ sensitivityData=[];
+ let html=`<table class="sensitivity"><thead><tr><th>Step-up ↓ / Return →</th>${rets.map(r=>`<th>${r}%</th>`).join("")}</tr></thead><tbody>`;
+ steps.forEach(s=>{html+=`<tr><th>${s}%</th>`;rets.forEach(r=>{let p=project(r,s);sensitivityData.push({step:s,return:r,corpus:p.corpus,real:p.real});let selected=s===state.stepUp&&[state.lowReturn,state.baseReturn,state.highReturn].includes(r);html+=`<td class="${selected?'selected':''}" title="${crore(p.real)} in today's rupees">${crore(p.corpus)}</td>`});html+="</tr>"});
+ html+="</tbody></table>";$("sensitivityTable").innerHTML=html;
+ let pick=sensitivityData.filter(x=>[state.lowReturn,state.baseReturn,state.highReturn].includes(x.return)&&x.step===state.stepUp);
+ $("sensitivityReal").textContent=pick.length?pick.map(x=>`${x.step}% step-up / ${x.return}% return: ${crore(x.real)} in today's rupees`).join(" · "):"Hover over a table cell to see its inflation-adjusted value.";
+}
+function loadScenarios(){try{return JSON.parse(localStorage.getItem("nps_scenarios")||"[]")}catch(e){return []}}
+function saveLocal(){localStorage.setItem("nps_inputs",JSON.stringify(state))}
+function renderSaved(){
+ let arr=loadScenarios();
+ if(!arr.length){$("savedScenarios").innerHTML='<p class="sub">No saved plans yet. Save your current plan above.</p>';return}
+ $("savedScenarios").innerHTML=`<table><thead><tr><th>Plan</th><th>Step-up</th><th>Base return</th><th>Corpus</th><th></th></tr></thead><tbody>${arr.map((x,i)=>{let p=projectFor(x.state,x.state.baseReturn,x.state.stepUp);return `<tr><td><strong>${escapeHtml(x.name)}</strong></td><td>${x.state.stepUp}%</td><td>${x.state.baseReturn}%</td><td>${crore(p.corpus)}</td><td><button class="danger" onclick="deleteScenario(${i})">Delete</button></td></tr>`}).join("")}</tbody></table>`;
+}
+function projectFor(st,rate,step){
+ const old=state;state=st;let p=project(rate,step);state=old;return p;
+}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+window.deleteScenario=i=>{let a=loadScenarios();a.splice(i,1);localStorage.setItem("nps_scenarios",JSON.stringify(a));renderSaved()};
+function refresh(){let errs=validate();if(errs.length){alert(errs.join("\n"));return}renderDashboard();renderSensitivity();renderSaved();saveLocal()}
+function activateTab(id){document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("active",b.dataset.tab===id));document.querySelectorAll(".panel").forEach(p=>p.classList.toggle("active",p.id===id))}
+document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>activateTab(b.dataset.tab)));
+$("applyBtn").addEventListener("click",()=>{readInputs();refresh();activateTab("dashboard")});
+$("saveInputs").addEventListener("click",()=>{readInputs();let e=validate();if(e.length){alert(e.join("\n"));return}saveLocal();alert("Inputs saved on this device.")});
+$("resetBtn").addEventListener("click",()=>{if(confirm("Reset all inputs to your original NPS assumptions?")){state={...DEFAULTS};setInputs();refresh()}});
+$("runSensitivity").addEventListener("click",()=>{renderSensitivity()});
+$("saveScenario").addEventListener("click",()=>{readInputs();let e=validate();if(e.length){alert(e.join("\n"));return}let name=$("scenarioName").value.trim()||"Scenario "+(loadScenarios().length+1);let a=loadScenarios();a.push({name,state:{...state}});localStorage.setItem("nps_scenarios",JSON.stringify(a));$("scenarioName").value="";renderSaved();alert("Scenario saved locally.")});
+$("exportCsv").addEventListener("click",()=>{if(!sensitivityData.length)renderSensitivity();let csv="Step-up (%),Return (%),Retirement corpus (INR),Today's value (INR)\n"+sensitivityData.map(x=>[x.step,x.return,Math.round(x.corpus),Math.round(x.real)].join(",")).join("\n");let blob=new Blob([csv],{type:"text/csv"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="NPS_sensitivity.csv";a.click();URL.revokeObjectURL(url)});
+$("clearData").addEventListener("click",()=>{if(confirm("Delete saved inputs and all saved scenarios from this browser?")){localStorage.removeItem("nps_inputs");localStorage.removeItem("nps_scenarios");state={...DEFAULTS};setInputs();refresh();alert("Local data cleared.")}});
+let saved={};try{saved=JSON.parse(localStorage.getItem("nps_inputs")||"{}")}catch(e){}state={...DEFAULTS,...saved};setInputs();refresh();
+</script>
+</body></html>
