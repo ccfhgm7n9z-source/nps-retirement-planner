@@ -41,7 +41,7 @@ footer{color:var(--muted);font-size:11px;text-align:center;padding:20px 10px}
 </nav>
 
 <section id="dashboard" class="panel active">
-<div class="toolbar"><div><strong id="dashTitle">Your retirement outlook</strong><div class="sub" id="dashSubtitle">Based on current assumptions</div></div><button class="secondary" id="resetBtn">Reset to my defaults</button></div>
+<div class="toolbar"><div><strong id="dashTitle">Your retirement outlook</strong><div class="sub" id="dashSubtitle">Based on current assumptions</div></div><button class="secondary" id="resetBtn">Reset calculator</button></div>
 <div class="grid kpis">
 <div class="card"><div class="kpi-label">Base-case corpus</div><div class="kpi-value" id="kpiCorpus">—</div><div class="sub" id="kpiReturn">13% assumed return</div></div>
 <div class="card"><div class="kpi-label">Today's purchasing power</div><div class="kpi-value" id="kpiReal">—</div><div class="sub" id="kpiInflation">After inflation</div></div>
@@ -60,18 +60,35 @@ footer{color:var(--muted);font-size:11px;text-align:center;padding:20px 10px}
 </section>
 
 <section id="inputs" class="panel">
-<div class="toolbar"><div><strong>Projection assumptions</strong><div class="sub">Edit the yellow fields; results recalculate automatically.</div></div><button id="saveInputs" class="secondary">Save on this device</button></div>
+<div class="toolbar"><div><strong>Projection assumptions</strong><div class="sub">Edit the fields and apply your assumptions to update the projection.</div></div><button id="saveInputs" class="secondary">Save on this device</button></div>
 <div class="grid two">
-<div class="card"><h2>Personal & contribution details</h2><div class="formgrid">
+<div class="card"><h2>1. Your NPS starting point</h2>
+<div class="field"><label for="hasNps">Do you already have an NPS account?</label><select id="hasNps"><option value="no">No — I am planning to start</option><option value="yes">Yes — I already invest in NPS</option></select><small>If you are new to NPS, the calculator starts your corpus at ₹0.</small></div>
+<div class="formgrid">
 <div class="field"><label for="dob">Date of birth</label><input id="dob" type="date"></div>
-<div class="field"><label for="retAge">Retirement age</label><input id="retAge" type="number" min="50" max="75" step="1"></div>
-<div class="field"><label for="valuationDate">Valuation date</label><input id="valuationDate" type="date"></div>
-<div class="field"><label for="currentCorpus">Current NPS market value (₹)</label><input id="currentCorpus" type="number" min="0" step="100"></div>
-<div class="field"><label for="monthly">Total monthly contribution (₹)</label><input id="monthly" type="number" min="0" step="100"></div>
-<div class="field"><label for="stepUp">Annual contribution step-up (%)</label><input id="stepUp" type="number" min="0" max="50" step="0.5"></div>
-<div class="field"><label for="firstMonth">First future contribution month</label><input id="firstMonth" type="month"></div>
-<div class="field"><label for="stepMonth">Annual step-up month</label><select id="stepMonth"><option value="1">January</option><option value="4">April</option><option value="7">July</option><option value="10">October</option></select></div>
-</div><div class="note">Current market value is your starting corpus and already includes contributions made so far. Do not add those contributions again.</div></div>
+<div class="field"><label for="retAge">Planned retirement age</label><input id="retAge" type="number" min="50" max="75" step="1" value="60"></div>
+<div class="field"><label for="valuationDate">Projection start date</label><input id="valuationDate" type="date" value="2026-11-18"></div>
+<div class="field" id="corpusField"><label for="currentCorpus">Current NPS balance (₹)</label><input id="currentCorpus" type="number" min="0" step="100" value="0"><small>Enter the latest market value from your NPS statement.</small></div>
+</div>
+<div class="section-title"><h2>2. Work out your monthly contribution</h2><span class="pill">Optional salary calculator</span></div>
+<div class="field"><label for="contributionMode">How would you like to estimate contributions?</label><select id="contributionMode"><option value="salary">I am salaried — calculate from basic pay</option><option value="manual">I'll enter a monthly amount myself</option></select></div>
+<div id="salaryInputs"><div class="formgrid">
+<div class="field"><label for="basicPay">Monthly basic pay (₹)</label><input id="basicPay" type="number" min="0" step="500" placeholder="e.g. 50000"></div>
+<div class="field"><label for="daPay">Monthly dearness allowance (₹)</label><input id="daPay" type="number" min="0" step="500" value="0"><small>Enter DA only if included in salary for NPS purposes.</small></div>
+<div class="field"><label for="taxRegime">Income-tax regime</label><select id="taxRegime"><option value="new">New tax regime</option><option value="old">Old tax regime</option></select></div>
+<div class="field"><label for="employerType">Employer type</label><select id="employerType"><option value="private">Private sector / PSU / other</option><option value="government">Central or State Government</option></select></div>
+<div class="field"><label for="employerRate">Employer NPS contribution (% of Basic + DA)</label><select id="employerRate"><option value="0">0% — no employer contribution</option><option value="5">5%</option><option value="10">10%</option><option value="14">14%</option></select><small>Enter the actual employer rate under your salary policy.</small></div>
+<div class="field"><label for="employeeRate">Your own contribution (% of Basic + DA)</label><select id="employeeRate"><option value="0">0% — none</option><option value="5">5%</option><option value="10">10%</option><option value="14">14%</option><option value="custom">Enter a monthly amount</option></select></div>
+<div class="field" id="employeeCustomField" style="display:none"><label for="employeeCustom">Your monthly contribution (₹)</label><input id="employeeCustom" type="number" min="0" step="100" value="0"></div>
+</div><div class="note goodnote" id="contributionSummary">Enter your basic pay to estimate contributions.</div></div>
+<div id="manualInputs" style="display:none"><div class="field"><label for="manualMonthly">Total monthly NPS contribution (₹)</label><input id="manualMonthly" type="number" min="0" step="100" value="5000"><small>Useful for self-employed, irregular or manually planned contributions.</small></div></div>
+<div class="formgrid" style="margin-top:12px">
+<div class="field"><label for="stepUp">Annual contribution increase (%)</label><input id="stepUp" type="number" min="0" max="50" step="0.5" value="5"><small>Optional annual increase as income grows.</small></div>
+<div class="field"><label for="firstMonth">First future contribution month</label><input id="firstMonth" type="month" value="2026-12"></div>
+<div class="field"><label for="stepMonth">Annual increase month</label><select id="stepMonth"><option value="1">January</option><option value="4" selected>April</option><option value="7">July</option><option value="10">October</option></select></div>
+</div>
+<div class="note" style="margin-top:8px">The 5%, 10% and 14% choices are example contribution rates, not universal employee limits. Employer NPS is optional for many private-sector employers and depends on company policy.</div>
+</div>
 <div class="card"><h2>Return, inflation & allocation</h2><div class="formgrid">
 <div class="field"><label for="lowReturn">Low return scenario (%)</label><input id="lowReturn" type="number" min="-10" max="30" step="0.5"></div>
 <div class="field"><label for="baseReturn">Base return scenario (%)</label><input id="baseReturn" type="number" min="-10" max="30" step="0.5"></div>
@@ -126,13 +143,14 @@ footer{color:var(--muted);font-size:11px;text-align:center;padding:20px 10px}
 </main>
 <script>
 const DEFAULTS={
- dob:"1996-07-27",retAge:65,valuationDate:"2026-11-18",currentCorpus:29804,monthly:13953,stepUp:10,
- firstMonth:"2026-12",stepMonth:4,inflation:6,lowReturn:12,baseReturn:13,highReturn:15,
+ dob:"",retAge:60,valuationDate:"2026-11-18",currentCorpus:0,monthly:0,stepUp:5,
+ firstMonth:"2026-12",stepMonth:4,inflation:6,lowReturn:8,baseReturn:10,highReturn:12,
  equity:75,corpDebt:10,gsec:15
 };
 const $=id=>document.getElementById(id);
 let state={...DEFAULTS}, sensitivityData=[];
 const inputIds=Object.keys(DEFAULTS);
+let extra={hasNps:"no",contributionMode:"salary",basicPay:0,daPay:0,taxRegime:"new",employerType:"private",employerRate:0,employeeRate:"0",employeeCustom:0,manualMonthly:5000};
 function num(v){return Number(v)||0}
 function dateFromMonth(s){let [y,m]=s.split("-").map(Number);return new Date(y,m-1,1)}
 function addMonths(d,n){return new Date(d.getFullYear(),d.getMonth()+n,1)}
@@ -168,15 +186,25 @@ function project(rate,step=state.stepUp){
 }
 function setInputs(){
  inputIds.forEach(k=>{if($(k))$(k).value=state[k]});
+ Object.entries(extra).forEach(([k,v])=>{if($(k))$(k).value=v});
+ syncContributionUI();
 }
 function readInputs(){
  inputIds.forEach(k=>{let el=$(k);if(el){state[k]=["dob","valuationDate","firstMonth"].includes(k)?el.value:num(el.value)}});
+ Object.keys(extra).forEach(k=>{if($(k))extra[k]=["hasNps","contributionMode","taxRegime","employerType","employeeRate"].includes(k)?$(k).value:num($(k).value)});
+ if(extra.hasNps==="no")state.currentCorpus=0;
+ if(extra.contributionMode==="salary"){
+ const employer=(num(extra.basicPay)+num(extra.daPay))*num(extra.employerRate)/100;
+ const employee=extra.employeeRate==="custom"?num(extra.employeeCustom):(num(extra.basicPay)+num(extra.daPay))*num(extra.employeeRate)/100;
+ state.monthly=employer+employee;
+ }else state.monthly=num(extra.manualMonthly);
 }
 function validate(){
  let errs=[];
- if(!state.dob||!state.valuationDate||!state.firstMonth)errs.push("Please complete all dates.");
+ if(!state.dob||!state.valuationDate||!state.firstMonth)errs.push("Please enter your date of birth and projection dates.");
  if(state.retAge<50||state.retAge>75)errs.push("Retirement age must be between 50 and 75.");
  if(state.monthly<0||state.currentCorpus<0)errs.push("Contribution and corpus cannot be negative.");
+ if(extra.contributionMode==="salary" && num(extra.basicPay)<=0)errs.push("Enter monthly basic pay, or choose manual contribution.");
  if(state.lowReturn<=-100||state.baseReturn<=-100||state.highReturn<=-100)errs.push("Return assumptions must be greater than -100%.");
  if(state.equity+state.corpDebt+state.gsec!==100)errs.push("Asset allocation must total exactly 100%.");
  if(dateFromMonth(state.firstMonth)>=new Date(retirementDate().getFullYear(),retirementDate().getMonth(),1))errs.push("First contribution month must be before retirement.");
@@ -215,7 +243,24 @@ function renderSensitivity(){
  $("sensitivityReal").textContent=pick.length?pick.map(x=>`${x.step}% step-up / ${x.return}% return: ${crore(x.real)} in today's rupees`).join(" · "):"Hover over a table cell to see its inflation-adjusted value.";
 }
 function loadScenarios(){try{return JSON.parse(localStorage.getItem("nps_scenarios")||"[]")}catch(e){return []}}
-function saveLocal(){localStorage.setItem("nps_inputs",JSON.stringify(state))}
+function saveLocal(){localStorage.setItem("nps_inputs",JSON.stringify({...state,_extra:extra}))}
+function employerTaxCap(){return extra.taxRegime==="new"?14:(extra.employerType==="government"?14:10)}
+function syncContributionUI(){
+ if(!$("contributionMode"))return;
+ $("salaryInputs").style.display=$("contributionMode").value==="salary"?"block":"none";
+ $("manualInputs").style.display=$("contributionMode").value==="manual"?"block":"none";
+ $("corpusField").style.display=$("hasNps").value==="yes"?"block":"none";
+ $("employeeCustomField").style.display=$("employeeRate").value==="custom"?"block":"none";
+ updateContributionSummary();
+}
+function updateContributionSummary(){
+ if(!$("contributionSummary"))return;
+ const basic=num($("basicPay").value),da=num($("daPay").value),er=num($("employerRate").value);
+ const choice=$("employeeRate").value,employee=choice==="custom"?num($("employeeCustom").value):basic*num(choice)/100;
+ const employer=(basic+da)*er/100,cap=employerTaxCap(),limit=(basic+da)*cap/100,total=employer+employee;
+ const warning=er>cap?"<br><b>Note:</b> Your selected employer rate exceeds the indicative Section 80CCD(2) deduction ceiling for this tax regime/employer category. The excess may not qualify for deduction and may have tax implications.":"";
+ $("contributionSummary").innerHTML="<b>Estimated monthly NPS contribution: "+fmtMoney(total)+"</b><br>Employer: "+fmtMoney(employer)+" · Your contribution: "+fmtMoney(employee)+"<br>Indicative employer tax-deduction ceiling: "+cap+"% of Basic + eligible DA (about "+fmtMoney(limit)+"/month)."+warning+"<br><small>Employee's own tax deduction is separate: under the old regime, Section 80CCD(1) is generally subject to 10% of salary and the overall ₹1.5 lakh limit, with a possible additional ₹50,000 under 80CCD(1B). These personal-contribution deductions are not available under the new regime.</small>";
+}
 function renderSaved(){
  let arr=loadScenarios();
  if(!arr.length){$("savedScenarios").innerHTML='<p class="sub">No saved plans yet. Save your current plan above.</p>';return}
@@ -226,16 +271,24 @@ function projectFor(st,rate,step){
 }
 function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 window.deleteScenario=i=>{let a=loadScenarios();a.splice(i,1);localStorage.setItem("nps_scenarios",JSON.stringify(a));renderSaved()};
-function refresh(){let errs=validate();if(errs.length){alert(errs.join("\n"));return}renderDashboard();renderSensitivity();renderSaved();saveLocal()}
+function refresh(silent=false){let errs=validate();if(errs.length){if(!silent)alert(errs.join("\n"));return}renderDashboard();renderSensitivity();renderSaved();saveLocal()}
 function activateTab(id){document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("active",b.dataset.tab===id));document.querySelectorAll(".panel").forEach(p=>p.classList.toggle("active",p.id===id))}
 document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>activateTab(b.dataset.tab)));
 $("applyBtn").addEventListener("click",()=>{readInputs();refresh();activateTab("dashboard")});
 $("saveInputs").addEventListener("click",()=>{readInputs();let e=validate();if(e.length){alert(e.join("\n"));return}saveLocal();alert("Inputs saved on this device.")});
-$("resetBtn").addEventListener("click",()=>{if(confirm("Reset all inputs to your original NPS assumptions?")){state={...DEFAULTS};setInputs();refresh()}});
+$("resetBtn").addEventListener("click",()=>{if(confirm("Clear the assumptions and start with a blank calculator?")){state={...DEFAULTS};extra={hasNps:"no",contributionMode:"salary",basicPay:0,daPay:0,taxRegime:"new",employerType:"private",employerRate:0,employeeRate:"0",employeeCustom:0,manualMonthly:5000};setInputs();refresh(true)}});
 $("runSensitivity").addEventListener("click",()=>{renderSensitivity()});
 $("saveScenario").addEventListener("click",()=>{readInputs();let e=validate();if(e.length){alert(e.join("\n"));return}let name=$("scenarioName").value.trim()||"Scenario "+(loadScenarios().length+1);let a=loadScenarios();a.push({name,state:{...state}});localStorage.setItem("nps_scenarios",JSON.stringify(a));$("scenarioName").value="";renderSaved();alert("Scenario saved locally.")});
 $("exportCsv").addEventListener("click",()=>{if(!sensitivityData.length)renderSensitivity();let csv="Step-up (%),Return (%),Retirement corpus (INR),Today's value (INR)\n"+sensitivityData.map(x=>[x.step,x.return,Math.round(x.corpus),Math.round(x.real)].join(",")).join("\n");let blob=new Blob([csv],{type:"text/csv"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="NPS_sensitivity.csv";a.click();URL.revokeObjectURL(url)});
 $("clearData").addEventListener("click",()=>{if(confirm("Delete saved inputs and all saved scenarios from this browser?")){localStorage.removeItem("nps_inputs");localStorage.removeItem("nps_scenarios");state={...DEFAULTS};setInputs();refresh();alert("Local data cleared.")}});
-let saved={};try{saved=JSON.parse(localStorage.getItem("nps_inputs")||"{}")}catch(e){}state={...DEFAULTS,...saved};setInputs();refresh();
+let saved={};try{saved=JSON.parse(localStorage.getItem("nps_inputs")||"{}")}catch(e){}
+if(saved._extra){extra={...extra,...saved._extra};delete saved._extra}
+state={...DEFAULTS,...saved};setInputs();refresh(true);
+["hasNps","contributionMode","basicPay","daPay","taxRegime","employerType","employerRate","employeeRate","employeeCustom","manualMonthly"].forEach(id=>$(id).addEventListener("input",()=>{syncContributionUI();readInputs();if(validate().length===0)renderDashboard()}));
+$("hasNps").addEventListener("change",()=>{syncContributionUI();if(extra.hasNps==="no"){$("currentCorpus").value=0;state.currentCorpus=0;if(validate().length===0)renderDashboard()}});
+$("contributionMode").addEventListener("change",syncContributionUI);
+$("employeeRate").addEventListener("change",syncContributionUI);
+$("taxRegime").addEventListener("change",syncContributionUI);
+$("employerType").addEventListener("change",syncContributionUI);
 </script>
 </body></html>
